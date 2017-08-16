@@ -20,6 +20,14 @@ defmodule Csvex do
       options)
   end
 
+  def parse_file_fold(filename, acc, folder_maker, options \\ []) do
+    :csv.decode_fold(
+      {:maker, folder_maker},
+      acc,
+      file_generator(filename),
+      options)
+  end
+
   defp stream_generator(csv_stream) do
     generator = fn (stream) ->
       case Enum.take(stream, 1) do
@@ -30,8 +38,22 @@ defmodule Csvex do
     {generator, csv_stream}
   end
 
+  defp file_generator(file) do
+    {:ok, fp} = :file.open(file, [:read, :raw, :binary])
+    generator = fn (fp) ->
+      case :file.read(fp, 65536) do
+        {:ok, chunk} ->
+          {chunk, fp}
+        :eof ->
+          {"", :done}
+      end
+    end
+    {generator, fp}
+  end
+
   def run() do
-    csv_stream = File.stream!("/Users/kullervo/github/martin-torhage/csv/priv/benchtest.csv", [:raw])
+    filename = "/Users/kullervo/github/martin-torhage/csv/priv/benchtest.csv"
+    csv_stream = File.stream!(filename, [:raw])
     folder_maker = fn(_) ->
       folder = fn (_, acc) ->
         acc + 1
@@ -39,7 +61,7 @@ defmodule Csvex do
       capture = [1, 3, 2]
       {folder, capture}
     end
-    parse_fold(csv_stream, 0, folder_maker)
+    parse_file_fold(filename, 0, folder_maker)
   end
 
 end
