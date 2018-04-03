@@ -7,10 +7,20 @@ defmodule Csvex.Parse do
   CsvexParseTest for example.
   """
 
+  @type options :: [option]
+  @type option :: {:delimiter, :tab | :comma}
+  @type row :: [binary]
+  @type folder :: (row, any -> any)
+  @type folder_maker :: folder | {:maker, (... -> {folder, capture})}
+  @type capture :: [non_neg_integer] # List of column indexes where the left-most is 0.
+  @type generator :: {(generator_state -> {binary, generator_state}), generator_state}
+  @type generator_state :: any
+
   @doc """
   Parses one CSV string completely. It provides the simplest interface but
   likely not the best performance.
   """
+  @spec string(binary, options) :: [row]
   def string(csv, options \\ []) do
     :csv.decode_binary(csv, default_options(options))
   end
@@ -18,6 +28,7 @@ defmodule Csvex.Parse do
   @doc """
   Folds over the rows in one CSV string.
   """
+  @spec string_fold(binary, folder_maker, any, options) :: any
   def string_fold(csv, folder, acc, options \\ []) do
     :csv.decode_binary_fold(erlang_folder(folder), acc, csv, default_options(options))
   end
@@ -25,6 +36,7 @@ defmodule Csvex.Parse do
   @doc """
   Same as string_fold/4 but working on a gzipped CSV.
   """
+  @spec gzip_fold(binary, folder_maker, any, options) :: any
   def gzip_fold(csv_gzip, folder, acc, options \\ []) do
     :csv.decode_gzip_fold(
       erlang_folder(folder),
@@ -43,6 +55,7 @@ defmodule Csvex.Parse do
   The csv_generator should generate sequential chunks of CSV. There is no requirement on
   the size of the chunks and they can include partial rows and values.
   """
+  @spec fold(generator, folder_maker, any, options) :: any
   def fold(csv_generator, folder, acc, options \\ []) do
     :csv.decode_fold(erlang_folder(folder), acc, csv_generator, default_options(options))
   end
