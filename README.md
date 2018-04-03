@@ -1,24 +1,17 @@
 # Csvex
 
-Elixir wrapper of the high performant NIF based Erlang CSV decoder [github.com/\
-martin-torhage/csv](https://github.com/martin-torhage/csv)
+This is an Elixir wrapper for the high-performance NIF based Erlang CSV parser [github.com/martin-torhage/csv](https://github.com/martin-torhage/csv). The Erlang lib has been used in multiple production systems for several years.
 
-## Installation
+## Performance
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `csvex` to your list of dependencies in `mix.exs`:
+Csvex is in simple tests more than 6 times faster than the most popular Elixir CSV parser [csv](https://hex.pm/packages/csv). At the same time the total CPU usage for parsing the same file is 93% lower.
 
-```elixir
-def deps do
-  [
-    {:csvex, "~> 0.1.0"}
-  ]
-end
-```
+For even higher performance, you can select which columns to be returned, and therefor reduce the amount of data copied by the NIF into the process heap. See the docs for `Csvex.Parse` for more info.
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/csvex](https://hexdocs.pm/csvex).
+## Todo
+ - Add an Elixir Stream interface. It's expected to have lower performance.
+ - Replace the clunky and limiting implementation of `erlang_folder/1` in `Csvex.Parse` with a macro.
+ - Add support for generating CSV to make it more complete. `libcsv` supports it, so it could be implemented in the `csv` Erlang lib first.
 
 ## License
 The MIT License (MIT). See LICENSE for details.
