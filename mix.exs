@@ -21,7 +21,7 @@ defmodule Csvex.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:csv, git: "https://github.com/martin-torhage/csv.git", tag: "2.0.3"},
+      {:csv, "~> 3.0", hex: :csve}
     ]
   end
 end
